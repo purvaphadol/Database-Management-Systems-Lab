@@ -1,0 +1,64 @@
+"
+Assignment 7
+
+Cursors:(All types: Implicit, Explicit, Cursor FOR Loop, Parameterized Cursor)
+
+Write a PL/SQL block of code using Cursor that will separate division wise lists. Use schema TE(roll, div, name, marks ) separate out two lists TEA and TEB according to division and display topper name and marks.
+"
+
+
+CREATE TABLE TE (
+    roll NUMBER,
+    div VARCHAR2(1),
+    name VARCHAR2(50),
+    marks NUMBER
+);
+
+INSERT INTO TE VALUES (1, 'A', 'John', 85);
+INSERT INTO TE VALUES (2, 'A', 'Alice', 90);
+INSERT INTO TE VALUES (3, 'A', 'Bob', 78);
+INSERT INTO TE VALUES (4, 'B', 'Charlie', 92);
+INSERT INTO TE VALUES (5, 'B', 'David', 88);
+INSERT INTO TE VALUES (6, 'B', 'Eva', 95);
+
+DECLARE
+    CURSOR division_cursor (p_div VARCHAR2) IS
+        SELECT name, marks
+        FROM TE
+        WHERE div = p_div
+        ORDER BY marks DESC;
+    
+    v_topper_name TE.name%TYPE;
+    v_topper_marks TE.marks%TYPE;
+    
+BEGIN
+    OPEN division_cursor('A');
+    FETCH division_cursor INTO v_topper_name, v_topper_marks;
+    
+    DBMS_OUTPUT.PUT_LINE('Topper in TEA Division:');
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_topper_name);
+    DBMS_OUTPUT.PUT_LINE('Marks: ' || v_topper_marks);
+    
+    CLOSE division_cursor;
+    
+    OPEN division_cursor('B');
+    FETCH division_cursor INTO v_topper_name, v_topper_marks;
+    
+    DBMS_OUTPUT.PUT_LINE('Topper in TEB Division:');
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_topper_name);
+    DBMS_OUTPUT.PUT_LINE('Marks: ' || v_topper_marks);
+    
+    CLOSE division_cursor;
+    
+END;
+/
+
+Output
+
+Topper in TEA Division:
+Name: Alice
+Marks: 90
+Topper in TEB Division:
+Name: Eva
+Marks: 95
+

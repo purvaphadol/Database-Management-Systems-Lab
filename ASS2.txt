@@ -1,0 +1,395 @@
+"
+Assignment 2
+
+Consider the given Database Schema: for problem statement 1
+Dept (Deptno , Name , Location, Managerempid)
+Employees  (name, empid, address, city, dob, date_of_joining,gender, salary, deptno)
+Gender must take value ‘M’ or ‘F’.
+Project(Projectid, title,city).
+Works (empid , Projectid, total_hrs_worked);
+Dependant(empid, name_of_dependant, age, relation)
+
+Primary Key is underlined.
+Projects are ‘Banking Project’, ‘Testing Project’, ‘ERP system’. ‘Software management’ etc
+Consider departments as””Development” . “Testing”, “Planning”, “Service”, “Administration” etc
+Consider Locations for department  as “Building 1”, “Building 2”, “Building 3”, “Main building”
+employee id will start as 101 to 300
+
+1. Develop DDL to implement the above schema enforcing primary key, check constraints (F and M for gender) and foreign key constraints.
+2. Insert data in each table . 
+3. Develop DML to Populate Database
+4. Add column Mobile number in employee table
+5. Update mobile numbers for each employee.
+6. “New Project”is cancelled so delete that entry from project
+7. Develop a SQL query to list employees  having name starting with ‘S’
+8. Develop a SQL query to list department having location ‘Building 1’
+9. Develop a SQL query to list employee having joining year 2019 to 2020
+10. Develop a SQL query to display all employees having salary > 50000
+11. Develop a SQL query to display all projects  of “City2”
+12. Develop a SQL query to display all dependants of  employee id 102
+13. Develop a SQL query to display all manager names
+14. Develop  a SQL query to find the age of all employees
+15. Display all employees in descending order of age
+"
+
+
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 8.0.34 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database as1;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> use as1;
+Database changed
+
+mysql> CREATE TABLE Project (
+    ->     Projectid INT PRIMARY KEY,
+    ->     title VARCHAR(255) NOT NULL,
+    ->     city VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Dept (
+    ->     Deptno INT PRIMARY KEY,
+    ->     Name VARCHAR(255) NOT NULL,
+    ->     Location VARCHAR(255) NOT NULL,
+    ->     Managerempid INT);
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Works (
+    ->     empid INT,
+    ->     Projectid INT,
+    ->     total_hrs_worked INT,
+    -> PRIMARY KEY (empid, Projectid) );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Dependant (
+    ->     empid INT,
+    ->     name_of_dependant VARCHAR(255),
+    ->     age INT,
+    ->     relation VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Employees (
+    ->     empid INT PRIMARY KEY,
+    ->     name VARCHAR(255) NOT NULL,
+    ->     address VARCHAR(255),
+    ->     city VARCHAR(255),
+    ->     dob DATE,
+    ->     date_of_joining DATE,
+    ->     gender CHAR(1) CHECK (gender IN ('M', 'F')),
+    ->     salary DECIMAL(10,2),
+    ->     deptno INT
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO Employees VALUES (101, 'John Doe', '123 Main St', 'City1', '1990-01-01', '2019-01-01', 'M', 60000, 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employees VALUES (104, 'Emily Davis', '321 Elm St', 'City2', '1991-12-03', '2017-06-15', 'F', 70000, 2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employees VALUES (103, 'Michael Johnson', '789 Pine St', 'City1', '1985-08-22', '2018-07-20', 'M', 80000, 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employees VALUES (102, 'Sarah Smith', '456 Oak St', 'City2', '1992-05-15', '2020-03-10', 'F', 75000, 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employees VALUES (106, 'Sam Head', '987 Maple St', 'City1', '1994-09-28', '2019-11-20', 'F', 85000, 4);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Employees VALUES (107, 'Kevin Brown', '555 Pine St', 'City2', '1987-07-12', '2015-08-10', 'M', 75000, 5);
+Query OK, 1 row affected (0.01 sec)
+
+
+mysql> INSERT INTO Dept VALUES (1, 'Development', 'Building 1', 101);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Dept VALUES (2, 'Testing', 'Building 2', 104);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Dept VALUES (3, 'Planning', 'Building 3', 105);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Dept VALUES (4, 'Service', 'Main building', 106);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Dept VALUES (5, 'Administration', 'Building 1', 107);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Project VALUES (1, 'Banking Project', 'City1');
+Query OK, 1 row affected (0.00 sec)
+
+
+mysql> INSERT INTO Project VALUES
+    ->     (2, 'ERP System', 'City2'),
+    ->     (3, 'Software Management', 'City3'),
+    ->     (4, 'New Project', 'City1');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Project VALUES
+    ->     (5, 'Database Migration', 'City1'),
+    ->     (6, 'Mobile App Development', 'City2');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+
+mysql> INSERT INTO Works VALUES (101, 1, 40);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Works VALUES (102, 2, 35), (103, 3, 42);
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Works VALUES (104, 5, 30), (105, 6, 38);
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+
+mysql> INSERT INTO Dependant VALUES (101, 'Dependant1', 10, 'Child');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Dependant VALUES (102, 'Dependant2', 8, 'Child'), (103, 'Dependant3', 25, 'Spouse');
+Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Dependant VALUES (104, 'Dependant4', 12, 'Child'), (102, 'Dependant5', 30, 'Spouse');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from Employees;
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+
+|   101 | John Doe        | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 |
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 |
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 |
+|   104 | Emily Davis     | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+
+6 rows in set (0.00 sec)
+
+mysql> select * from Dept;
++--------+----------------+---------------+--------------+
+| Deptno | Name           | Location      | Managerempid |
++--------+----------------+---------------+--------------+
+|      1 | Development    | Building 1    |          101 |
+|      2 | Testing        | Building 2    |          104 |
+|      3 | Planning       | Building 3    |          105 |
+|      4 | Service        | Main building |          106 |
+|      5 | Administration | Building 1    |          107 |
++--------+----------------+---------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from Project;
++-----------+------------------------+-------+
+| Projectid | title                  | city  |
++-----------+------------------------+-------+
+|         1 | Banking Project        | City1 |
+|         2 | ERP System             | City2 |
+|         3 | Software Management    | City3 |
+|         4 | New Project            | City1 |
+|         5 | Database Migration     | City1 |
+|         6 | Mobile App Development | City2 |
++-----------+------------------------+-------+
+6 rows in set (0.00 sec)
+
+mysql> select * from Works;
++-------+-----------+------------------+
+| empid | Projectid | total_hrs_worked |
++-------+-----------+------------------+
+|   101 |         1 |               40 |
+|   102 |         2 |               35 |
+|   103 |         3 |               42 |
+|   104 |         5 |               30 |
+|   105 |         6 |               38 |
++-------+-----------+------------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from Dependant;
++-------+-------------------+------+----------+
+| empid | name_of_dependant | age  | relation |
++-------+-------------------+------+----------+
+|   101 | Dependant1        |   10 | Child    |
+|   102 | Dependant2        |    8 | Child    |
+|   103 | Dependant3        |   25 | Spouse   |
+|   104 | Dependant4        |   12 | Child    |
+|   102 | Dependant5        |   30 | Spouse   |
++-------+-------------------+------+----------+
+5 rows in set (0.00 sec)
+
+
+mysql> ALTER TABLE Employees
+    -> ADD COLUMN MobileNumber VARCHAR(15);
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+mysql> UPDATE Employees SET MobileNumber = '1234567890' WHERE empid = 101;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Employees SET MobileNumber = '9876785890' WHERE empid = 102;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Employees SET MobileNumber = '7876547653' WHERE empid = 103;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Employees SET MobileNumber = '9876547653' WHERE empid = 104;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Employees SET MobileNumber = '9898767853' WHERE empid = 106;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE Employees SET MobileNumber = '3452653987' WHERE empid = 107;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from Employees;
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe        | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
+|   104 | Emily Davis     | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+6 rows in set (0.00 sec)
+
+
+mysql> DELETE FROM Project
+    -> WHERE title = 'New Project';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE name LIKE 'S%';
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   102 | Sarah Smith | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   106 | Sam Head    | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Dept
+    -> WHERE Location = 'Building 1';
++--------+----------------+------------+--------------+
+| Deptno | Name           | Location   | Managerempid |
++--------+----------------+------------+--------------+
+|      1 | Development    | Building 1 |          101 |
+|      5 | Administration | Building 1 |          107 |
++--------+----------------+------------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE YEAR(date_of_joining) BETWEEN 2019 AND 2020;
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe    | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   102 | Sarah Smith | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   106 | Sam Head    | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE salary > 50000;
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe        | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
+|   104 | Emily Davis     | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+6 rows in set (0.01 sec)
+
+
+mysql> SELECT *
+    -> FROM Project
+    -> WHERE city = 'City2';
++-----------+------------------------+-------+
+| Projectid | title                  | city  |
++-----------+------------------------+-------+
+|         2 | ERP System             | City2 |
+|         6 | Mobile App Development | City2 |
++-----------+------------------------+-------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Dependant
+    -> WHERE empid = 102;
++-------+-------------------+------+----------+
+| empid | name_of_dependant | age  | relation |
++-------+-------------------+------+----------+
+|   102 | Dependant2        |    8 | Child    |
+|   102 | Dependant5        |   30 | Spouse   |
++-------+-------------------+------+----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT e.name AS Manager_Name
+    -> FROM Employees e
+    -> JOIN Dept d ON e.empid = d.Managerempid;
++--------------+
+| Manager_Name |
++--------------+
+| John Doe     |
+| Emily Davis  |
+| Sam Head     |
+| Kevin Brown  |
++--------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT name, FLOOR(DATEDIFF(CURDATE(), dob) / 365) AS age
+    -> FROM Employees;
++-----------------+------+
+| name            | age  |
++-----------------+------+
+| John Doe        |   33 |
+| Sarah Smith     |   31 |
+| Michael Johnson |   38 |
+| Emily Davis     |   31 |
+| Sam Head        |   29 |
+| Kevin Brown     |   36 |
++-----------------+------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> ORDER BY FLOOR(DATEDIFF(CURDATE(), dob) / 365) DESC;
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
+|   101 | John Doe        | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   104 | Emily Davis     | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+6 rows in set (0.00 sec)
+

@@ -1,0 +1,71 @@
+"
+Assignment 4
+
+Unnamed PL/SQLcode block: Use of Control structure and Exception handling is mandatory.
+Suggested Problem statement:
+Consider Tables:
+Borrower(Roll_no, Name, Date of Issue, Name of Book, Status)
+Fine(Roll_no, Date, Amt)
+1. Accept Roll_no and Name of Book from the user. 
+2. Check the number of days (from date of issue).
+3. If days are between 15 to 30 then the fine amount will be Rs 5per day.
+4. If no. of days>30, per day fine will be Rs 50 per day and for days less than 30, Rs. 5 per day.
+5. After submitting the book, status will change from I to R.
+6. If condition of fine is true, then details will be stored into fine table.
+7. Also handles the exception by named exception handler or user defined exception handler.
+"
+
+create table borrower(roll_no int, name varchar(30), date_of_issue date, name_of_book varchar(30), status varchar(20), primary key (roll_no))
+create table fine(roll_no int, currentdate date, amt int)
+insert into borrower values (1, 'Purva','20-AUG-2023', 'wings of fire','T' )
+
+select * from borrower
+
+DECLARE 
+    v_roll NUMBER; 
+    v_fine NUMBER; 
+    v_nod NUMBER; 
+BEGIN 
+    FOR s IN (SELECT roll_no, date_of_issue, name FROM borrower) LOOP 
+        v_roll := s.roll_no; 
+ 
+        v_nod := SYSDATE - s.date_of_issue; 
+ 
+        DBMS_OUTPUT.PUT_LINE('No of Days: ' || v_nod); 
+ 
+        BEGIN 
+            IF v_nod >= 15 AND v_nod < 30 THEN 
+                v_fine := (v_nod - 15) * 5; 
+            ELSIF v_nod >= 30 THEN 
+                v_fine := (v_nod - 30) * 50; 
+            ELSE 
+                v_fine := 0; 
+            END IF; 
+ 
+            INSERT INTO fine (roll_no, currentdate, amt) VALUES (v_roll, sysdate, v_fine); 
+            UPDATE borrower SET status = 'R' WHERE roll_no = v_roll; 
+ 
+            COMMIT; -- Commit the transaction after successful insertion and update 
+        EXCEPTION 
+            WHEN OTHERS THEN 
+                -- Handle exceptions here 
+                DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM); 
+        END; 
+    END LOOP; 
+END;
+
+select * from fine
+
+ROLL_NO NAME DATE_OF_ISSUE NAME_OF_BOOK STATUS
+1 Komal 06-MAY-23 TOC Taken
+2 Purva 28-MAR-23 DBMS Taken
+3 Shruti 16-JUN-23 IOT Taken
+4 Vedant 06-FEB-23 SPOS Taken
+5 Jayesh 12-JUL-23 CNS Taken
+
+ROLL_NO CURRENTDATE AMT
+1 23-AUG-23 3969
+2 23-AUG-23 5919
+3 23-AUG-23 1919
+4 23-AUG-23 8419
+5 23-AUG-23 619

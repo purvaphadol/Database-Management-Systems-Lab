@@ -1,0 +1,242 @@
+"
+Assignment 11
+Create the collection Books having the following fields	TITLE, DESCRIPTION, BY, URL, TAGS AND LIKES.
+Implement the following Aggregation and Indexing Queries
+1. Find the number of books published by john.
+2. Find books which have minimum likes and maximum likes published by john.
+3. Find the average number of likes of the books published by john.
+4. Find the first and last book published by john..
+5. Create an index on author name.
+6. Display the books published by john and check if it uses the index which we have created
+“
+
+
+Please enter a MongoDB connection string (Default: mongodb://localhost/): mongo
+mongo
+Current Mongosh Log ID: 655b431beb31511f8ad95149
+Connecting to:          mongodb://127.0.0.1:27017/mongo?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.2
+Using MongoDB:          7.0.3
+Using Mongosh:          2.0.2
+
+For mongosh info see: https://docs.mongodb.com/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2023-11-18T23:53:07.717+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+------
+
+mongo> show dbs
+admin   40.00 KiB
+config  84.00 KiB
+local   40.00 KiB
+
+mongo> use ass10
+switched to db ass10
+
+ass10> db.Books.aggregate([{$match:{by:'john'}},{$group:{ _id:null, count_books:{$sum:1} }}])
+[ { _id: null, count_books: 3 } ]
+
+ass10> db.Books.aggregate([{$match:{by:'john'}},{$group:{ _id:null, minimum_likes:{$min:"$likes"},maximum_likes:{$max:"$likes"} }}])
+[ { _id: null, minimum_likes: 10, maximum_likes: 10000 } ]
+
+ass10> db.Books.aggregate([{$match:{by:'john'}},{$group:{ _id:null, avg_books:{$avg:"$likes"} }}])
+[ { _id: null, avg_books: 3670 } ]
+
+
+ass10> db.Books.aggregate([{$match:{by:'john'}}, {$sort:{_id:1}},{$limit:1}])
+[
+  {
+    _id: ObjectId("655b46f9eb31511f8ad9514a"),
+    title: 'mongodb overview',
+    des: 'this is the mongodb book',
+    by: 'john',
+    url: 'www.mondodb.com',
+    tags: [ 'nosql', 'not only sql' ],
+    likes: 1000
+  }
+]
+
+ass10> db.Books.aggregate([ {$match:{by:'john'}}, {$sort:{_id:-1}}, {$limit:1} ])
+[
+  {
+    _id: ObjectId("655b46f9eb31511f8ad9514e"),
+    title: 'maths',
+    des: 'this is maths',
+    by: 'john',
+    url: 'www.maths.com',
+    tags: 'arithmetic',
+    likes: 10000
+  }
+]
+
+ass10> db.Books.createIndex({by:1})
+by_1
+
+ass10> db.Books.getIndexes()
+[
+  { v: 2, key: { _id: 1 }, name: '_id_' },
+  { v: 2, key: { by: 1 }, name: 'by_1' }
+]
+
+ass10> db.Books.find({by:'john'}).explain("executionStats")
+{
+  explainVersion: '2',
+  queryPlanner: {
+    namespace: 'ass10.Books',
+    indexFilterSet: false,
+    parsedQuery: { by: { '$eq': 'john' } },
+    queryHash: 'DAC541D8',
+    planCacheKey: '1C0B575A',
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    winningPlan: {
+      queryPlan: {
+        stage: 'FETCH',
+        planNodeId: 2,
+        inputStage: {
+          stage: 'IXSCAN',
+          planNodeId: 1,
+          keyPattern: { by: 1 },
+          indexName: 'by_1',
+          isMultiKey: false,
+          multiKeyPaths: { by: [] },
+          isUnique: false,
+          isSparse: false,
+          isPartial: false,
+          indexVersion: 2,
+          direction: 'forward',
+          indexBounds: { by: [ '["john", "john"]' ] }
+        }
+      },
+      slotBasedPlan: {
+        slots: '$$RESULT=s11 env: { s3 = 1700485563959 (NOW), s1 = TimeZoneDatabase(Etc/GMT-10...Australia/ACT) (timeZoneDB), s2 = Nothing (SEARCH_META), s6 = KS(3C6A6F686E00FE04), s10 = {"by" : 1}, s5 = KS(3C6A6F686E000104) }',
+        stages: '[2] nlj inner [] [s4, s7, s8, s9, s10] \n' +
+          '    left \n' +
+          '        [1] cfilter {(exists(s5) && exists(s6))} \n' +
+          '        [1] ixseek s5 s6 s9 s4 s7 s8 [] @"60841315-f3aa-4159-a55b-5a290531a039" @"by_1" true \n' +
+          '    right \n' +
+          '        [2] limit 1 \n' +
+          '        [2] seek s4 s11 s12 s7 s8 s9 s10 [] @"60841315-f3aa-4159-a55b-5a290531a039" true false \n'
+      }
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 3,
+    executionTimeMillis: 35,
+    totalKeysExamined: 3,
+    totalDocsExamined: 3,
+    executionStages: {
+      stage: 'nlj',
+      planNodeId: 2,
+      nReturned: 3,
+      executionTimeMillisEstimate: 24,
+      opens: 1,
+      closes: 1,
+      saveState: 1,
+      restoreState: 1,
+      isEOF: 1,
+      totalDocsExamined: 3,
+      totalKeysExamined: 3,
+      collectionScans: 0,
+      collectionSeeks: 3,
+      indexScans: 0,
+      indexSeeks: 1,
+      indexesUsed: [ 'by_1' ],
+      innerOpens: 3,
+      innerCloses: 1,
+      outerProjects: [],
+      outerCorrelated: [ Long("4"), Long("7"), Long("8"), Long("9"), Long("10") ],
+      outerStage: {
+        stage: 'cfilter',
+        planNodeId: 1,
+        nReturned: 3,
+        executionTimeMillisEstimate: 24,
+        opens: 1,
+        closes: 1,
+        saveState: 1,
+        restoreState: 1,
+        isEOF: 1,
+        numTested: 1,
+        filter: '(exists(s5) && exists(s6)) ',
+        inputStage: {
+          stage: 'ixseek',
+          planNodeId: 1,
+          nReturned: 3,
+          executionTimeMillisEstimate: 24,
+          opens: 1,
+          closes: 1,
+          saveState: 1,
+          restoreState: 1,
+          isEOF: 1,
+          indexName: 'by_1',
+          keysExamined: 3,
+          seeks: 1,
+          numReads: 4,
+          indexKeySlot: 9,
+          recordIdSlot: 4,
+          snapshotIdSlot: 7,
+          indexIdentSlot: 8,
+          outputSlots: [],
+          indexKeysToInclude: '00000000000000000000000000000000',
+          seekKeyLow: 's5 ',
+          seekKeyHigh: 's6 '
+        }
+      },
+      innerStage: {
+        stage: 'limit',
+        planNodeId: 2,
+        nReturned: 3,
+        executionTimeMillisEstimate: 0,
+        opens: 3,
+        closes: 1,
+        saveState: 1,
+        restoreState: 1,
+        isEOF: 1,
+        limit: 1,
+        inputStage: {
+          stage: 'seek',
+          planNodeId: 2,
+          nReturned: 3,
+          executionTimeMillisEstimate: 0,
+          opens: 3,
+          closes: 1,
+          saveState: 1,
+          restoreState: 1,
+          isEOF: 0,
+          numReads: 3,
+          recordSlot: 11,
+          recordIdSlot: 12,
+          seekKeySlot: 4,
+          snapshotIdSlot: 7,
+          indexIdentSlot: 8,
+          indexKeySlot: 9,
+          indexKeyPatternSlot: 10,
+          fields: [],
+          outputSlots: []
+        }
+      }
+    }
+  },
+  command: { find: 'Books', filter: { by: 'john' }, '$db': 'ass10' },
+  serverInfo: {
+    host: 'Shruti',
+    port: 27017,
+    version: '7.0.3',
+    gitVersion: 'b96efb7e0cf6134d5938de8a94c37cec3f22cff4'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600,
+    internalQueryFrameworkControl: 'trySbeEngine'
+  },
+  ok: 1
+}

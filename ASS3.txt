@@ -1,0 +1,262 @@
+"
+Assignment 3
+
+SQL Queries: All types of Join, Sub-Query and View:
+Write at least10 SQL queries for suitable database applications using SQL DML statements.
+Note: Instructor will design the queries which demonstrate the use of concepts like all types of Join ,Sub-Query and View
+
+1. Develop  a SQL query to list employees  having birthday in Jan of Development dept
+2. Develop  a SQL query to Find the names of all employees who work for “ERP system"
+3. Develop  a SQL query to Find the names and cities of residence of all employees who work for “Banking project”
+4. Develop  a SQL query to find time required for “Banking project”
+5. Develop  a SQL query to Find all employees in the database who live in the same cities as the project  for which they work.
+6. Develop  a SQL query to Find all employees in the database who live in the same cities and on the same streets as do their managers.
+7. Develop  a SQL query to Find all employees in the database who do not work for “Banking project”
+8. Develop  a SQL query to find average salary of each department
+9. Develop  a SQL query to Find all employees in the database who earn more than each employee of  “Testing Department”
+10. Develop  a SQL query to Find all employees who earn more than the average salary of all employees of their department .
+11. Develop  a SQL query to  Find the department that has the most employees.
+12. Develop  a SQL query to Find the department  that has the smallest payroll.
+13. Develop  a SQL query to Find the employees working on each project.
+14. Develop  a SQL query to Find the employees  who are not having any project.
+15. Develop  a SQL query to Find the employees who is not having any project as well as projects who are not having employees.
+16. Develop  a SQL query to Find the employees  whose department is located  in “main building”
+17. Develop  a SQL query to find employees working on more than 2 project of “Development  department”
+18. Develop  a SQL query to display senior person of “Testing Department”
+19. Create a view containing the total number of employees  whose project location is  “Pune”
+20. Calculate total traveling allowance for all using view (1000 Rs each)
+"
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE MONTH(dob) = 1 AND deptno = (SELECT Deptno FROM Dept WHERE Name = 'Development');
++-------+----------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name     | address     | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+----------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe | 123 Main St | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
++-------+----------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT e.name
+    -> FROM Employees e
+    -> JOIN Works w ON e.empid = w.empid
+    -> JOIN Project p ON w.Projectid = p.Projectid
+    -> WHERE p.title = 'ERP System';
++-------------+
+| name        |
++-------------+
+| Sarah Smith |
++-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT e.name, e.city
+    -> FROM Employees e
+    -> JOIN Works w ON e.empid = w.empid
+    -> JOIN Project p ON w.Projectid = p.Projectid
+    -> WHERE p.title = 'Banking Project';
++----------+-------+
+| name     | city  |
++----------+-------+
+| John Doe | City1 |
++----------+-------+
+1 row in set (0.00 sec)
+
+mysql> SELECT Projectid, SUM(total_hrs_worked) AS total_hours
+    -> FROM Works
+    -> WHERE Projectid = (SELECT Projectid FROM Project WHERE title = 'Banking Project')
+    -> GROUP BY Projectid;
++-----------+-------------+
+| Projectid | total_hours |
++-----------+-------------+
+|         1 |          40 |
++-----------+-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Works w ON e.empid = w.empid
+    -> JOIN Project p ON w.Projectid = p.Projectid
+    -> WHERE e.city = p.city;
++-------+-------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address     | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe    | 123 Main St | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   102 | Sarah Smith | 456 Oak St  | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
++-------+-------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Dept d ON e.deptno = d.Deptno
+    -> JOIN Employees mgr ON d.Managerempid = mgr.empid
+    -> WHERE e.city = mgr.city AND e.address = mgr.address;
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   101 | John Doe    | 123 Main St  | City1 | 1990-01-01 | 2019-01-01      | M      | 60000.00 |      1 | 1234567890   |
+|   104 | Emily Davis | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
+|   106 | Sam Head    | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE empid NOT IN (SELECT empid FROM Works WHERE Projectid = (SELECT Projectid FROM Project WHERE title = 'Banking Project'));
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
+|   104 | Emily Davis     | 321 Elm St   | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT d.Deptno, d.Name AS Department, AVG(e.salary) AS AverageSalary
+
+    -> FROM Dept d
+    -> JOIN Employees e ON d.Deptno = e.deptno
+    -> GROUP BY d.Deptno, d.Name;
++--------+----------------+---------------+
+| Deptno | Department     | AverageSalary |
++--------+----------------+---------------+
+|      1 | Development    |  71666.666667 |
+|      2 | Testing        |  70000.000000 |
+|      4 | Service        |  85000.000000 |
+|      5 | Administration |  75000.000000 |
++--------+----------------+---------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> WHERE e.salary > ALL (SELECT salary FROM Employees WHERE deptno = (SELECT Deptno FROM Dept WHERE Name = 'Testing'));
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   102 | Sarah Smith     | 456 Oak St   | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   103 | Michael Johnson | 789 Pine St  | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
+|   106 | Sam Head        | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown     | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-----------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN (SELECT deptno, AVG(salary) AS avg_salary FROM Employees GROUP BY deptno) avg_sal ON e.deptno = avg_sal.deptno
+    -> WHERE e.salary > avg_sal.avg_salary;
++-------+-----------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name            | address     | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-----------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   102 | Sarah Smith     | 456 Oak St  | City2 | 1992-05-15 | 2020-03-10      | F      | 75000.00 |      1 | 9876785890   |
+|   103 | Michael Johnson | 789 Pine St | City1 | 1985-08-22 | 2018-07-20      | M      | 80000.00 |      1 | 7876547653   |
++-------+-----------------+-------------+-------+------------+-----------------+--------+----------+--------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT Deptno, COUNT(empid) AS EmployeeCount
+    -> FROM Employees
+    -> GROUP BY Deptno
+    -> ORDER BY EmployeeCount DESC
+    -> LIMIT 1;
++--------+---------------+
+| Deptno | EmployeeCount |
++--------+---------------+
+|      1 |             3 |
++--------+---------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT d.Deptno, d.Name AS Department, SUM(e.salary) AS TotalSalary
+    -> FROM Dept d
+    -> JOIN Employees e ON d.Deptno = e.deptno
+    -> GROUP BY d.Deptno, d.Name
+    -> ORDER BY TotalSalary
+    -> LIMIT 1;
++--------+------------+-------------+
+| Deptno | Department | TotalSalary |
++--------+------------+-------------+
+|      2 | Testing    |    70000.00 |
++--------+------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT p.title AS Project, e.name AS Employee
+    -> FROM Project p
+    -> JOIN Works w ON p.Projectid = w.Projectid
+    -> JOIN Employees e ON w.empid = e.empid;
++---------------------+-----------------+
+| Project             | Employee        |
++---------------------+-----------------+
+| Banking Project     | John Doe        |
+| ERP System          | Sarah Smith     |
+| Software Management | Michael Johnson |
+| Database Migration  | Emily Davis     |
++---------------------+-----------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM Employees
+    -> WHERE empid NOT IN (SELECT empid FROM Works);
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   106 | Sam Head    | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
+|   107 | Kevin Brown | 555 Pine St  | City2 | 1987-07-12 | 2015-08-10      | M      | 75000.00 |      5 | 3452653987   |
++-------+-------------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+2 rows in set (0.00 sec)
+
+
+mysql> SELECT *
+    -> FROM Project
+    -> WHERE Projectid NOT IN (SELECT Projectid FROM Works);
+Empty set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Dept d ON e.deptno = d.Deptno
+    -> WHERE d.Location = 'Main building';
++-------+----------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name     | address      | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+----------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   106 | Sam Head | 987 Maple St | City1 | 1994-09-28 | 2019-11-20      | F      | 85000.00 |      4 | 9898767853   |
++-------+----------+--------------+-------+------------+-----------------+--------+----------+--------+--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Works w ON e.empid = w.empid
+    -> JOIN Dept d ON e.deptno = d.Deptno
+    -> WHERE d.Name = 'Development'
+    -> GROUP BY e.empid
+    -> HAVING COUNT(w.Projectid) > 2;
+Empty set (0.00 sec)
+
+mysql> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Dept d ON e.deptno = d.Deptno
+    -> WHERE d.Name = 'Testing'
+    -> ORDER BY e.date_of_joining
+    -> LIMIT 1;
++-------+-------------+------------+-------+------------+-----------------+--------+----------+--------+--------------+
+| empid | name        | address    | city  | dob        | date_of_joining | gender | salary   | deptno | MobileNumber |
++-------+-------------+------------+-------+------------+-----------------+--------+----------+--------+--------------+
+|   104 | Emily Davis | 321 Elm St | City2 | 1991-12-03 | 2017-06-15      | F      | 70000.00 |      2 | 9876547653   |
++-------+-------------+------------+-------+------------+-----------------+--------+----------+--------+--------------+
+1 row in set (0.00 sec)
+
+mysql> CREATE VIEW EmployeesInPune AS
+    -> SELECT e.*
+    -> FROM Employees e
+    -> JOIN Works w ON e.empid = w.empid
+    -> JOIN Project p ON w.Projectid = p.Projectid
+    -> WHERE p.city = 'Pune';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> SELECT COUNT(*) * 1000 AS TotalTravelingAllowance
+    -> FROM EmployeesInPune;
++-------------------------+
+| TotalTravelingAllowance |
++-------------------------+
+|                       0 |
++-------------------------+
+1 row in set (0.00 sec)
+

@@ -1,0 +1,27 @@
+"
+Assignment 5
+
+Write a PL/SQL code block to calculate the area of a circle for a value of radius varying from 5 to 9. Store the radius and the corresponding values of the calculated area in an empty table named areas, consisting of two columns, radius and area.
+"
+
+create table circlearea(radius float, area float);
+declare
+	pi float:=3.142;
+	radius float;
+	area float:=0;
+	
+	begin
+	for radius in 5..9 loop
+		area:=pi*radius*radius;
+		insert into circlearea(radius, area) values(radius,area);
+	end loop;
+end;
+
+select *from circlearea;
+
+RADIUS AREA
+5 78.55
+6 113.112
+7 153.958
+8 201.088
+9 254.502
